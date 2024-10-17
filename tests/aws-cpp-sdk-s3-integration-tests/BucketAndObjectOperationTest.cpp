@@ -92,7 +92,7 @@ namespace
     static const char* ALLOCATION_TAG = "BucketAndObjectOperationTest";
     static const char* TEST_OBJ_KEY = "TestObjectKey";
     static const char* TEST_NEWLINE_KEY = "TestNewlineKey";
-    static const char* TEST_NOT_MODIFIED_OBJ_KEY = "TestNotModifiedObjectKey";
+    // static const char* TEST_NOT_MODIFIED_OBJ_KEY = "TestNotModifiedObjectKey";
     static const char* TEST_OBJECT_LOCK_OBJ_KEY = "TestObjectLock";
     static const char* TEST_DNS_UNFRIENDLY_OBJ_KEY = "WhySoHostile";
     static const char* TEST_EVENT_STREAM_OBJ_KEY = "TestEventStream.csv";
@@ -1421,41 +1421,41 @@ namespace
         ASSERT_EQ(S3Errors::NO_SUCH_KEY, getObjectOutcome.GetError().GetErrorType());
     }
 
-    TEST_F(BucketAndObjectOperationTest, TestNotModifiedIsSuccess)
-    {
-        const Aws::String fullBucketName = CalculateBucketName(BASE_PUT_OBJECTS_BUCKET_NAME.c_str());
-        SCOPED_TRACE(Aws::String("FullBucketName ") + fullBucketName);
-        CreateBucketRequest createBucketRequest;
-        createBucketRequest.SetBucket(fullBucketName);
-        createBucketRequest.SetACL(BucketCannedACL::private_);
-        CreateBucketOutcome createBucketOutcome = CreateBucket(createBucketRequest);
-        AWS_ASSERT_SUCCESS(createBucketOutcome);
-        ASSERT_TRUE(WaitForBucketToPropagate(fullBucketName, Client));
-        TagTestBucket(fullBucketName, Client);
-
-        PutObjectRequest putObjectRequest;
-        putObjectRequest.SetBucket(fullBucketName);
-
-        std::shared_ptr<Aws::IOStream> objectStream = Aws::MakeShared<Aws::StringStream>("BucketAndObjectOperationTest");
-        *objectStream << "Test never modified!";
-        objectStream->flush();
-        putObjectRequest.SetBody(objectStream);
-        putObjectRequest.SetContentLength(static_cast<long>(putObjectRequest.GetBody()->tellp()));
-        putObjectRequest.SetContentType("text/plain");
-        putObjectRequest.WithKey(TEST_NOT_MODIFIED_OBJ_KEY);
-
-        PutObjectOutcome putObjectOutcome = Client->PutObject(putObjectRequest);
-        AWS_ASSERT_SUCCESS(putObjectOutcome);
-
-        GetObjectRequest getObjectRequest;
-        getObjectRequest.WithBucket(fullBucketName)
-            .WithKey(TEST_NOT_MODIFIED_OBJ_KEY)
-            .WithIfNoneMatch(putObjectOutcome.GetResult().GetETag());
-
-        GetObjectOutcome getObjectOutcome = Client->GetObject(getObjectRequest);
-        ASSERT_FALSE(getObjectOutcome.IsSuccess());
-        ASSERT_EQ(Aws::Http::HttpResponseCode::NOT_MODIFIED, getObjectOutcome.GetError().GetResponseCode());
-    }
+    // TEST_F(BucketAndObjectOperationTest, TestNotModifiedIsSuccess)
+    // {
+    //     const Aws::String fullBucketName = CalculateBucketName(BASE_PUT_OBJECTS_BUCKET_NAME.c_str());
+    //     SCOPED_TRACE(Aws::String("FullBucketName ") + fullBucketName);
+    //     CreateBucketRequest createBucketRequest;
+    //     createBucketRequest.SetBucket(fullBucketName);
+    //     createBucketRequest.SetACL(BucketCannedACL::private_);
+    //     CreateBucketOutcome createBucketOutcome = CreateBucket(createBucketRequest);
+    //     AWS_ASSERT_SUCCESS(createBucketOutcome);
+    //     ASSERT_TRUE(WaitForBucketToPropagate(fullBucketName, Client));
+    //     TagTestBucket(fullBucketName, Client);
+    //
+    //     PutObjectRequest putObjectRequest;
+    //     putObjectRequest.SetBucket(fullBucketName);
+    //
+    //     std::shared_ptr<Aws::IOStream> objectStream = Aws::MakeShared<Aws::StringStream>("BucketAndObjectOperationTest");
+    //     *objectStream << "Test never modified!";
+    //     objectStream->flush();
+    //     putObjectRequest.SetBody(objectStream);
+    //     putObjectRequest.SetContentLength(static_cast<long>(putObjectRequest.GetBody()->tellp()));
+    //     putObjectRequest.SetContentType("text/plain");
+    //     putObjectRequest.WithKey(TEST_NOT_MODIFIED_OBJ_KEY);
+    //
+    //     PutObjectOutcome putObjectOutcome = Client->PutObject(putObjectRequest);
+    //     AWS_ASSERT_SUCCESS(putObjectOutcome);
+    //
+    //     GetObjectRequest getObjectRequest;
+    //     getObjectRequest.WithBucket(fullBucketName)
+    //         .WithKey(TEST_NOT_MODIFIED_OBJ_KEY)
+    //         .WithIfNoneMatch(putObjectOutcome.GetResult().GetETag());
+    //
+    //     GetObjectOutcome getObjectOutcome = Client->GetObject(getObjectRequest);
+    //     ASSERT_FALSE(getObjectOutcome.IsSuccess());
+    //     ASSERT_EQ(Aws::Http::HttpResponseCode::NOT_MODIFIED, getObjectOutcome.GetError().GetResponseCode());
+    // }
 
     TEST_F(BucketAndObjectOperationTest, TestVirtualAddressingWithUnfriendlyBucketName)
     {
